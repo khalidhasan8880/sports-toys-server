@@ -28,6 +28,10 @@ async function run() {
   try {
     const toysCollection = client.db("sportsToysDB").collection("toys");
     
+    app.get('/toys', async(req,res)=>{
+        const result = await toysCollection.find().toArray()
+        res.send(result)
+    })
 
 
 
