@@ -27,18 +27,24 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const toysCollection = client.db("sportsToysDB").collection("toys");
-    
-    app.get('/toys', async(req,res)=>{
-        const result = await toysCollection.find().toArray()
-        res.send(result)
+
+    app.get('/toys', async (req, res) => {
+      const result = await toysCollection.find().toArray()
+      res.send(result)
+    })
+    // get by category
+    app.get('/category/:text', async (req, res) => {
+      const category = req.params.text;
+      const result = await toysCollection.find({ sport_Name: { $regex: new RegExp(category, 'i') } }).toArray()
+      res.send(result)
     })
 
-
+    
 
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
-    
+
   }
 }
 run().catch(console.dir);
