@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000
 const cors = require('cors')
 require('dotenv').config()
@@ -27,11 +27,41 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const toysCollection = client.db("sportsToysDB").collection("toys");
-
-    app.get('/toys', async (req, res) => {
-      const result = await toysCollection.find().toArray()
+    // get all data 
+    app.get('/all_toys', async (req, res) => {
+      const sortBy = req.headers?.sortby;
+      const result = await toysCollection.find().sort({price:parseInt(sortBy)}).limit(20).toArray()
       res.send(result)
     })
+
+
+    // patch single data
+    app.patch('/update/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const updated = req.body
+      const updateToy = {
+        $set: {
+          name: updated.name,
+          seller_name: updated.seller_name,
+          seller_email: updated.seller_email,
+          img: updated.img,
+          recommended_age: updated.recommended_age,
+          manufacturer: updated.manufacturer,
+          price: updated.price,
+          size: updated.size,
+          category: updated.category,
+          sports_name: updated.sport_Name,
+          description: updated.description,
+          available_stock: updated.available_stock,
+          material: updated.material
+        },
+      };
+      const options = { upsert: true }
+      const result = await toysCollection.updateOne(filter, updateToy, options)
+      res.send(result)
+    })
+   
     // post
     app.post('/', async (req, res) => {
       const newToy = req.body
@@ -46,7 +76,15 @@ async function run() {
       res.send(result)
     })
 
-    
+    // delete
+    app.delete('/delete/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await toysCollection.deleteOne(query)
+      res.send(result)
+    })
+
+
 
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
