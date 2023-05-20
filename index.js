@@ -43,7 +43,12 @@ async function run() {
         res.send(result)
       }
     })
- 
+ // filter by email
+ app.get('/my_toys', async (req, res) => {
+      
+  const result = await toysCollection.find({ seller_email: req.query.email }).toArray()
+  res.send(result)
+})
 
 
     // patch single data
