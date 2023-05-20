@@ -33,6 +33,17 @@ async function run() {
       const result = await toysCollection.find().sort({price:parseInt(sortBy)}).limit(20).toArray()
       res.send(result)
     })
+    // dynamic search
+    await toysCollection.createIndex({ name: 1 })
+    app.get('/search/:searchText', async (req, res) => {
+      const searchText = req.params.searchText;
+      if (searchText) {
+        const query = { name: { $regex: searchText, $options: 'i' } }
+        const result = await toysCollection.find(query).limit(20).toArray()
+        res.send(result)
+      }
+    })
+ 
 
 
     // patch single data
