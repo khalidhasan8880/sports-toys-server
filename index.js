@@ -30,7 +30,7 @@ async function run() {
     // get all data 
     app.get('/all_toys', async (req, res) => {
       const sortBy = req.headers?.sortby;
-      const result = await toysCollection.find().sort({price:parseInt(sortBy)}).limit(20).toArray()
+      const result = await toysCollection.find().sort({ price: parseInt(sortBy) }).limit(20).toArray()
       res.send(result)
     })
     // dynamic search
@@ -43,12 +43,14 @@ async function run() {
         res.send(result)
       }
     })
- // filter by email
- app.get('/my_toys', async (req, res) => {
-      
-  const result = await toysCollection.find({ seller_email: req.query.email }).toArray()
-  res.send(result)
-})
+    // filter by email
+    app.get('/my_toys', async (req, res) => {
+      const sortBy = req.headers?.sortby;
+
+      const result = await toysCollection.find({ seller_email: req.query.email }).sort({price:parseInt(sortBy)}).toArray()
+      res.send(result)
+    })
+
 
 
     // patch single data
@@ -77,7 +79,7 @@ async function run() {
       const result = await toysCollection.updateOne(filter, updateToy, options)
       res.send(result)
     })
-   
+
     // post
     app.post('/', async (req, res) => {
       const newToy = req.body
